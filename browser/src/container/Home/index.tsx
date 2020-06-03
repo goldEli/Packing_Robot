@@ -57,7 +57,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
             <Select placeholder="请选择工程">
               {project.map((item) => {
                 return (
-                  <Select.Option value={item.id}>{item.name}</Select.Option>
+                  <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
                 );
               })}
             </Select>
