@@ -1,0 +1,19 @@
+{
+  "project": [
+    {
+      "id": "1",
+      "url": "git@10.0.5.16:miner/miner-dev/ueqa-fe.git",
+      "name": "智能操作助手前端工程"
+    },
+    {
+      "id": "2",
+      "url": "git@10.0.5.16:miner/miner-dev/ueqa-chat_robot_emebedding.git",
+      "name": "智能操作助手嵌入脚本前端工程"
+    },
+    {
+      "id": "3",
+      "url": "git@10.0.5.16:miner/miner-dev/ue-miner-fe.git",
+      "name": "智能可视化引擎前端工程"
+    }
+  ]
+}

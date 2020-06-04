@@ -13,25 +13,19 @@ const formInfo = {
   command: { label: "打包命令", key: "command" },
 };
 
-const data = {
-  project: [
-    { id: "1", name: "ue智能化" },
-    { id: "2", name: "miner" },
-  ],
-  branch: [
-    { id: "1", name: "div" },
-    { id: "2", name: "master" },
-  ],
-  mention: [
-    { id: "1", name: "xiangguojun" },
-    { id: "2", name: "zhangli" },
-  ],
-};
-
-type Project = { id: string; name: string }[];
+type Project = { id: string; name: string; url: string }[];
 
 const Home: React.FunctionComponent<IHomeProps> = (props) => {
-  const [project] = useProject();
+  const [form] = Form.useForm();
+  const [projectList] = useProject();
+  const [branchList, setBranchList] = React.useState([]);
+
+  React.useEffect(() => {
+    const defaultData = getDefaultFromStorage();
+
+    form.setFieldsValue({ [formInfo.mention.key]: defaultData.mention });
+    form.setFieldsValue({ [formInfo.command.key]: defaultData.command });
+  }, [form]);
 
   const onFinish = (values: any) => {
     console.log("Success:", values);
@@ -40,12 +34,20 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
+  const onProjectChange = (id: string) => {
+    postData("/branch_list", { id }).then((data) => {
+      setBranchList(data);
+      form.setFieldsValue({ [formInfo.branch.key]: data[0] });
+    });
+  };
+  console.log(typeof branchList, branchList);
   return (
     <Box>
       <FormArea>
         <Form
           {...layout}
           name="basic"
+          form={form}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
@@ -54,28 +56,50 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
             name={formInfo.project.key}
             rules={[{ required: true, message: "请选择工程" }]}
           >
-            <Select placeholder="请选择工程">
-              {project.map((item) => {
+            <Select onChange={onProjectChange} placeholder="请选择工程">
+              {projectList.map((item) => {
                 return (
-                  <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
+                  <Select.Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Select.Option>
                 );
               })}
             </Select>
           </Form.Item>
-          <Form.Item label={formInfo.branch.label} name={formInfo.branch.key}>
-            <Select>
-              <Select.Option value="demo">Demo</Select.Option>
+          <Form.Item
+            label={formInfo.branch.label}
+            name={formInfo.branch.key}
+            rules={[{ required: true, message: "请选择分支" }]}
+          >
+            <Select placeholder="请选择分支">
+              {branchList.map((item) => {
+                return (
+                  <Select.Option key={item} value={item}>
+                    {item}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </Form.Item>
-          <Form.Item label={formInfo.mention.label} name={formInfo.mention.key}>
-            <Select>
-              <Select.Option value="demo">Demo</Select.Option>
-            </Select>
+          <Form.Item
+            label={formInfo.mention.label}
+            name={formInfo.mention.key}
+            rules={[{ required: true, message: "请输入企业微信@的人" }]}
+          >
+            <Input />
           </Form.Item>
-          <Form.Item label={formInfo.note.label} name={formInfo.note.key}>
+          <Form.Item
+            label={formInfo.note.label}
+            name={formInfo.note.key}
+            rules={[{ required: true, message: "请输入备注信息" }]}
+          >
             <Input></Input>
           </Form.Item>
-          <Form.Item label={formInfo.command.label} name={formInfo.command.key}>
+          <Form.Item
+            label={formInfo.command.label}
+            name={formInfo.command.key}
+            rules={[{ required: true, message: "请输入打包命令" }]}
+          >
             <Input></Input>
           </Form.Item>
 
@@ -93,13 +117,62 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
 const useProject = (): [Project] => {
   const [data, setData] = React.useState<Project>([]);
   React.useEffect(() => {
-    fetch("/getProject")
-      .then((response) => response.json())
-      .then((data) => data.status === 1 ? data.data : Promise.reject())
-      .then((data) => setData(data))
+    postData("/project_list").then((data) => setData(data));
   }, []);
   return [data];
 };
+
+async function postData(url: string, data: Object = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  });
+  // parses JSON response into native JavaScript objects
+  return response
+    .json()
+    .then((data) =>
+      data.status === 1 ? stringToObject(data.data) : Promise.reject()
+    );
+}
+
+function getDefaultFromStorage() {
+  const mention = formInfo.mention.key;
+  const command = formInfo.command.key;
+  const o = {
+    mention: "xiangguojun",
+    command: "npm run build",
+  };
+  const mentionValue = localStorage.getItem(mention);
+  const commandValue = localStorage.getItem(command);
+  if (mentionValue) {
+    o.mention = mentionValue;
+  } else {
+    localStorage.setItem(mention, o.mention);
+  }
+  if (commandValue) {
+    o.command = commandValue;
+  } else {
+    localStorage.setItem(command, o.command);
+  }
+  return o;
+}
+
+function stringToObject(str: any) {
+  if (typeof str === "string") {
+    return JSON.parse(str);
+  }
+  return str;
+}
 
 const Box = styled.div`
   width: 100%;
