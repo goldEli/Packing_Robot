@@ -2,7 +2,7 @@
 '''
 @Author: miaoyu
 @Date: 2020-06-03 12:17:10
-@LastEditTime: 2020-06-04 18:52:25
+@LastEditTime: 2020-06-22 14:20:27
 @LastEditors: miaoyu
 @Description:
 '''
@@ -13,6 +13,8 @@ import os
 import subprocess
 import asyncio
 import json
+# from build import build
+import build
 
 import utils
 
@@ -40,6 +42,24 @@ def branch_list():
     data = get_branch_list(dir)
     return success_data(json.dumps(data))
 
+@app.route('/start_build', methods=["GET","POST"])
+def start_build():
+    id = request.get_json()['project']
+    branch = request.get_json()['branch']
+    mention = request.get_json()['mention']
+    note = request.get_json()['note']
+    print(id, branch, mention, note)
+    project = get_protject_by_id(id)
+    build.run(
+        project=project,
+        note=note,
+        branch=branch,
+        mention=mention
+    )
+    return success_data(json.dumps({}))
+
+#################################################
+
 def success_data(data, msg="success"):
     return {
         "status": 1,
@@ -62,6 +82,13 @@ def get_projects():
     config = json.load(f)
     return config['project']
 
+def get_protject_by_id(id):
+    project_list = get_projects()
+    project = filter(
+        lambda x: x['id'] == id,
+        project_list
+    )
+    return list(project)[0]
 
 def handle_clone():
     '''
@@ -93,6 +120,8 @@ def get_branch_list(dir):
     '''
     获取分支列表
     '''
+    utils.command("git pull")
+
     name = "refs/remotes/origin/"
     l = utils.command(
         "git --git-dir " + dir + "/.git for-each-ref --format='%(refname)'"
@@ -106,6 +135,8 @@ def get_branch_list(dir):
     branch = map(lambda x: x.replace(name, ""), branch)
     return list(branch)
 
+# def build(id="1", branch="master", mention=None, note="未备注"):
+#     print(get_protject_by_id(id))
 
 if __name__ == "__main__":
 

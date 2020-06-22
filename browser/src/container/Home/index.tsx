@@ -10,7 +10,7 @@ const formInfo = {
   branch: { label: "分支", key: "branch" },
   mention: { label: "@谁", key: "mention" },
   note: { label: "备注", key: "note" },
-  command: { label: "打包命令", key: "command" },
+  // command: { label: "打包命令", key: "command" },
 };
 
 type Project = { id: string; name: string; url: string }[];
@@ -24,10 +24,11 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
     const defaultData = getDefaultFromStorage();
 
     form.setFieldsValue({ [formInfo.mention.key]: defaultData.mention });
-    form.setFieldsValue({ [formInfo.command.key]: defaultData.command });
+    // form.setFieldsValue({ [formInfo.command.key]: defaultData.command });
   }, [form]);
 
   const onFinish = (values: any) => {
+    postData("/start_build", values)
     console.log("Success:", values);
   };
 
@@ -95,13 +96,13 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
           >
             <Input></Input>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label={formInfo.command.label}
             name={formInfo.command.key}
             rules={[{ required: true, message: "请输入打包命令" }]}
           >
             <Input></Input>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item {...tailLayout}>
             <Button type="primary" htmlType="submit">
@@ -147,23 +148,23 @@ async function postData(url: string, data: Object = {}) {
 
 function getDefaultFromStorage() {
   const mention = formInfo.mention.key;
-  const command = formInfo.command.key;
+  // const command = formInfo.command.key;
   const o = {
     mention: "xiangguojun",
     command: "npm run build",
   };
   const mentionValue = localStorage.getItem(mention);
-  const commandValue = localStorage.getItem(command);
+  // const commandValue = localStorage.getItem(command);
   if (mentionValue) {
     o.mention = mentionValue;
   } else {
     localStorage.setItem(mention, o.mention);
   }
-  if (commandValue) {
-    o.command = commandValue;
-  } else {
-    localStorage.setItem(command, o.command);
-  }
+  // if (commandValue) {
+  //   o.command = commandValue;
+  // } else {
+  //   localStorage.setItem(command, o.command);
+  // }
   return o;
 }
 
