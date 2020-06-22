@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Form, Input, Button, Select, Checkbox } from "antd";
+import { Form, Input, Button, Select, message, Spin } from "antd";
 import styled from "styled-components";
 import "antd/dist/antd.css";
 
@@ -19,6 +19,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
   const [form] = Form.useForm();
   const [projectList] = useProject();
   const [branchList, setBranchList] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const defaultData = getDefaultFromStorage();
@@ -28,7 +29,18 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
   }, [form]);
 
   const onFinish = (values: any) => {
+    setLoading(true);
+    const key = "loadding";
+    message.info({ content: "打包中...", key });
     postData("/start_build", values)
+      .then(() => {
+        setLoading(false);
+        message.success({ content: "打包成功！", key });
+      })
+      .catch(() => {
+        setLoading(false);
+        message.error({ content: "打包失败！", key });
+      });
     console.log("Success:", values);
   };
 
@@ -44,59 +56,60 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
   console.log(typeof branchList, branchList);
   return (
     <Box>
-      <FormArea>
-        <Form
-          {...layout}
-          name="basic"
-          form={form}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
-          <Form.Item
-            label={formInfo.project.label}
-            name={formInfo.project.key}
-            rules={[{ required: true, message: "请选择工程" }]}
+      <Spin spinning={loading}>
+        <FormArea>
+          <Form
+            {...layout}
+            name="basic"
+            form={form}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
           >
-            <Select onChange={onProjectChange} placeholder="请选择工程">
-              {projectList.map((item) => {
-                return (
-                  <Select.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label={formInfo.branch.label}
-            name={formInfo.branch.key}
-            rules={[{ required: true, message: "请选择分支" }]}
-          >
-            <Select placeholder="请选择分支">
-              {branchList.map((item) => {
-                return (
-                  <Select.Option key={item} value={item}>
-                    {item}
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label={formInfo.mention.label}
-            name={formInfo.mention.key}
-            rules={[{ required: true, message: "请输入企业微信@的人" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={formInfo.note.label}
-            name={formInfo.note.key}
-            rules={[{ required: true, message: "请输入备注信息" }]}
-          >
-            <Input></Input>
-          </Form.Item>
-          {/* <Form.Item
+            <Form.Item
+              label={formInfo.project.label}
+              name={formInfo.project.key}
+              rules={[{ required: true, message: "请选择工程" }]}
+            >
+              <Select onChange={onProjectChange} placeholder="请选择工程">
+                {projectList.map((item) => {
+                  return (
+                    <Select.Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label={formInfo.branch.label}
+              name={formInfo.branch.key}
+              rules={[{ required: true, message: "请选择分支" }]}
+            >
+              <Select placeholder="请选择分支">
+                {branchList.map((item) => {
+                  return (
+                    <Select.Option key={item} value={item}>
+                      {item}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label={formInfo.mention.label}
+              name={formInfo.mention.key}
+              rules={[{ required: true, message: "请输入企业微信@的人" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label={formInfo.note.label}
+              name={formInfo.note.key}
+              rules={[{ required: true, message: "请输入备注信息" }]}
+            >
+              <Input></Input>
+            </Form.Item>
+            {/* <Form.Item
             label={formInfo.command.label}
             name={formInfo.command.key}
             rules={[{ required: true, message: "请输入打包命令" }]}
@@ -104,13 +117,14 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
             <Input></Input>
           </Form.Item> */}
 
-          <Form.Item {...tailLayout}>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </FormArea>
+            <Form.Item {...tailLayout}>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </FormArea>
+      </Spin>
     </Box>
   );
 };
@@ -139,11 +153,12 @@ async function postData(url: string, data: Object = {}) {
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   });
   // parses JSON response into native JavaScript objects
-  return response
-    .json()
-    .then((data) =>
-      data.status === 1 ? stringToObject(data.data) : Promise.reject()
-    );
+  return response.json().then((data) => {
+    if (data.status === 1) {
+      return stringToObject(data.data);
+    }
+    return Promise.reject();
+  });
 }
 
 function getDefaultFromStorage() {
