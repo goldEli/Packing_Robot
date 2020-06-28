@@ -18,7 +18,7 @@ import build
 
 import utils
 
-app = Flask(__name__)
+app = Flask(import_name=__name__, static_folder='build', static_url_path='/')
 
 ROOT_PATH = pathlib.Path().absolute()
 
@@ -78,7 +78,7 @@ def get_projects():
     '''
     获取所有工程信息
     '''
-    f = open('config.json', 'r')    
+    f = open('config.json', 'r', encoding='gb18030', errors='ignore')    
     config = json.load(f)
     return config['project']
 

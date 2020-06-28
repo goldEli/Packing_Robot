@@ -1,4 +1,4 @@
-dist/
+build/
 node_modules/
 git_folder/
 __pycache__/

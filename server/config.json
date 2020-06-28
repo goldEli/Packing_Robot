@@ -13,14 +13,14 @@
     {
       "id": "3",
       "url": "git@10.0.5.16:miner/miner-dev/ue-miner-fe.git",
-      "name": "智能可视化引擎前端工程"
+  "name": "智能可视化引擎前端工程"
     }
   ],
   "project": [
     {
       "id": "1",
-      "url": "https://gitee.com/maioyu/order_meal_robot.git",
-      "name": "智能操作助手前端工程1"
+      "url": "git@10.0.5.16:miner/miner-dev/miner-code-fe.git",
+      "name": "miner"
     }
   ]
   
