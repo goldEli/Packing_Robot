@@ -48,9 +48,11 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
     console.log("Failed:", errorInfo);
   };
   const onProjectChange = (id: string) => {
+    setLoading(true);
     postData("/branch_list", { id }).then((data) => {
       setBranchList(data);
       form.setFieldsValue({ [formInfo.branch.key]: data[0] });
+      setLoading(false);
     });
   };
   console.log(typeof branchList, branchList);

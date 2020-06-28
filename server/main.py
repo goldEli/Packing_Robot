@@ -120,7 +120,8 @@ def get_branch_list(dir):
     '''
     获取分支列表
     '''
-    utils.command("git pull")
+    os.system("git pull")
+    os.system("git fetch")
 
     name = "refs/remotes/origin/"
     l = utils.command(
