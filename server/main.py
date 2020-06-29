@@ -120,7 +120,7 @@ def get_branch_list(dir):
     '''
     获取分支列表
     '''
-    os.system("git pull")
+    # os.system("git pull")
     os.system("git fetch")
 
     name = "refs/remotes/origin/"
@@ -143,4 +143,5 @@ if __name__ == "__main__":
 
     create_git_folder()
     handle_clone()
-    app.run(debug=True, host='0.0.0.0', port=8088)
+    # app.run(debug=True, host='0.0.0.0', port=8088)
+    app.run(host='0.0.0.0', port=8088)

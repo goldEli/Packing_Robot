@@ -38,19 +38,23 @@ def run(project=None, branch="master", mention=None, note="未备注"):
     # utils.command("cd "+ folder_name)
 
 
-    os.system("git clone {} {} && git fetch && git checkout {}".format(project['url'], folder_name, branch))
+    os.system("git clone {} {} && cd {} && git checkout {}".format(project['url'], folder_name, folder_name, branch))
 
-    os.chdir(
-        os.path.join(
-            root_path, folder_name
-        )
-    )
+    # os.chdir(
+    #     os.path.join(
+    #         root_path, folder_name
+    #     )
+    # )
 
     os.system("cnpm install")
 
     os.system("npm run build_online")
 
-    build_info = get_build_info()
+    build_info_url = os.path.join(
+        root_path, folder_name, "buildInfo.json"
+    )
+
+    build_info = get_build_info(build_info_url)
 
     zip_name = build_info["date"] + ".zip"
     project_name = build_info["projectName"] if "projectName" in build_info else project["name"]
@@ -76,7 +80,7 @@ def run(project=None, branch="master", mention=None, note="未备注"):
 
     os.chdir(root_path)
 
-    utils.command("rm -rf " + folder_name)
+    os.system("cd .. && rm -rf {}".format(folder_name))
 
 
 def zip(zip_name="none.zip", zip_folder="public"):
@@ -126,7 +130,7 @@ def send_msg_to_wechat(project_name, branch, mention, note, zip_name):
     os.system(command)
 
 
-def get_build_info():
+def get_build_info(url):
 
     #if not os.path.exists("buildInfo.json"):
         #return {
@@ -135,12 +139,8 @@ def get_build_info():
             #"projectName": "xxx项目"
         #}
 
-    f = open("buildInfo.json", "r", encoding='gb18030', errors='ignore')
+    f = open(url, "r", encoding='gb18030', errors='ignore')
     info = json.load(f)
     return info
 
 
-if __name__ == "__main__":
-    # send_msg_to_wechat("1", "2", "all", "4", "111.zip")
-    d = get_build_info()
-    print(d["date"])

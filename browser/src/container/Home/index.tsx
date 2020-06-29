@@ -2,6 +2,7 @@ import * as React from "react";
 import { Form, Input, Button, Select, message, Spin } from "antd";
 import styled from "styled-components";
 import "antd/dist/antd.css";
+import { FormInstance } from "antd/lib/form";
 
 interface IHomeProps {}
 
@@ -13,6 +14,15 @@ const formInfo = {
   // command: { label: "打包命令", key: "command" },
 };
 
+type Keys = "project" | "branch" | "mention" | "note"
+
+interface Values {
+   project: string
+   branch: string
+   mention: string
+   note: string
+}
+
 type Project = { id: string; name: string; url: string }[];
 
 const Home: React.FunctionComponent<IHomeProps> = (props) => {
@@ -22,14 +32,12 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    const defaultData = getDefaultFromStorage();
-
-    form.setFieldsValue({ [formInfo.mention.key]: defaultData.mention });
-    // form.setFieldsValue({ [formInfo.command.key]: defaultData.command });
+    setDefaultFromStorage(form);
   }, [form]);
 
   const onFinish = (values: any) => {
     setLoading(true);
+    saveValuesToStroage(values)
     const key = "loadding";
     message.info({ content: "打包中...", key });
     postData("/start_build", values)
@@ -100,7 +108,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
             <Form.Item
               label={formInfo.mention.label}
               name={formInfo.mention.key}
-              rules={[{ required: true, message: "请输入企业微信@的人" }]}
+              rules={[{ required: true, message: "请输入企业微信@的人: xiangguojun" }]}
             >
               <Input />
             </Form.Item>
@@ -163,26 +171,28 @@ async function postData(url: string, data: Object = {}) {
   });
 }
 
-function getDefaultFromStorage() {
-  const mention = formInfo.mention.key;
-  // const command = formInfo.command.key;
-  const o = {
-    mention: "xiangguojun",
-    command: "npm run build",
-  };
-  const mentionValue = localStorage.getItem(mention);
-  // const commandValue = localStorage.getItem(command);
-  if (mentionValue) {
-    o.mention = mentionValue;
-  } else {
-    localStorage.setItem(mention, o.mention);
+function saveValuesToStroage(values: Values) {
+    let key: Keys
+    for (key in values) {
+
+      localStorage.setItem(key, values[key]);
+    }
+}
+
+function setDefaultFromStorage(form: FormInstance) {
+  let itemKey: Keys 
+  for (itemKey in formInfo) {
+    const key = formInfo[itemKey].key as Keys
+    const value = localStorage.getItem(key)
+    if (!value && key === "mention") {
+
+      form.setFieldsValue({ mention: "xiangguojun" });
+    }
+    if (value) {
+      form.setFieldsValue({ [key]: value });
+    }
   }
-  // if (commandValue) {
-  //   o.command = commandValue;
-  // } else {
-  //   localStorage.setItem(command, o.command);
-  // }
-  return o;
+
 }
 
 function stringToObject(str: any) {
