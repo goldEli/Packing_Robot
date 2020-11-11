@@ -107,7 +107,7 @@ def send_msg_to_wechat(project_name, branch, mention, note, zip_name):
     下载：{}
     '''.format(project_name, branch, note, download_url)
 
-    key = "fc686d11-d2ef-4417-abb6-2d497945fa2a"
+    key = "token"
 
     command = '''
     curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s' \
