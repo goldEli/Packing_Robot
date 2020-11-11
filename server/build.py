@@ -38,17 +38,11 @@ def run(project=None, branch="master", mention=None, note="未备注"):
     # utils.command("cd "+ folder_name)
 
 
-    os.system("git clone {} {} && cd {} && git checkout {}".format(project['url'], folder_name, folder_name, branch))
+    command1 = "git clone {} {} && cd {} && git checkout {}".format(project['url'], folder_name, folder_name, branch)
+    print(command1)
+    os.system(command1)
 
-    # os.chdir(
-    #     os.path.join(
-    #         root_path, folder_name
-    #     )
-    # )
-
-    os.system("cnpm install")
-
-    os.system("npm run build_online")
+    os.system("cd {} && cnpm install && cnpm run build_online".format(folder_name))
 
     build_info_url = os.path.join(
         root_path, folder_name, "buildInfo.json"
@@ -59,14 +53,16 @@ def run(project=None, branch="master", mention=None, note="未备注"):
     zip_name = build_info["date"] + ".zip"
     project_name = build_info["projectName"] if "projectName" in build_info else project["name"]
     zip_folder = build_info["zipFolder"]
+    
+    print(build_info)
 
-    zip(zip_name, zip_folder)
+    zip(zip_name, zip_folder, folder_name)
 
     ssh_scp_files(
         ssh_host=server_info["host"],
         ssh_user=server_info["username"],
         ssh_password=server_info["password"],
-        source_volume=zip_name,
+        source_volume=os.path.join(folder_name, zip_name),
         destination_volume=server_info["path"],
     )
 
@@ -80,16 +76,17 @@ def run(project=None, branch="master", mention=None, note="未备注"):
 
     os.chdir(root_path)
 
-    os.system("cd .. && rm -rf {}".format(folder_name))
+    os.system("rm -rf {}".format(folder_name))
 
 
-def zip(zip_name="none.zip", zip_folder="public"):
-    os.system('zip -r -X {} {}'.format(zip_name, zip_folder))
+def zip(zip_name="none.zip", zip_folder="public", folder_name=""):
+    os.system('cd {} && zip -r -X {} {}'.format(folder_name, zip_name, zip_folder))
 
 # SSH/SCP Directory Recursively
 
 
 def ssh_scp_files(ssh_host, ssh_user, ssh_password, source_volume, destination_volume):
+    print("scp info:", source_volume, destination_volume)
     ssh = SSHClient()
     ssh.load_system_host_keys()
     ssh.connect(ssh_host, username=ssh_user,
@@ -100,8 +97,8 @@ def ssh_scp_files(ssh_host, ssh_user, ssh_password, source_volume, destination_v
 
 
 def send_msg_to_wechat(project_name, branch, mention, note, zip_name):
-    download_url = 'http://{}:{}{}/{}'.format(
-        server_info["host"], server_info["download_port"], server_info["path"], zip_name)
+    download_url = 'http://{}:{}/{}'.format(
+        server_info["host"], server_info["download_port"], zip_name)
 
     content = '''【最新前端包】
     项目名称：{}
@@ -110,7 +107,7 @@ def send_msg_to_wechat(project_name, branch, mention, note, zip_name):
     下载：{}
     '''.format(project_name, branch, note, download_url)
 
-    key = "231cb73c-7155-40ed-9b2b-7ccd8914140e"
+    key = "fc686d11-d2ef-4417-abb6-2d497945fa2a"
 
     command = '''
     curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s' \
@@ -139,7 +136,7 @@ def get_build_info(url):
             #"projectName": "xxx项目"
         #}
 
-    f = open(url, "r", encoding='gb18030', errors='ignore')
+    f = open(url, "r", encoding='utf-8', errors='ignore')
     info = json.load(f)
     return info
 

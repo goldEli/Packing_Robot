@@ -1,0 +1,9 @@
+build/
+node_modules/
+git_folder/
+__pycache__
+server/.flaskenv
+server/__pycache__
+server/build
+server/git_folder
+server/pygit_logger.log

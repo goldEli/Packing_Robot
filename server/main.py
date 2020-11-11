@@ -13,6 +13,7 @@ import os
 import subprocess
 import asyncio
 import json
+import git
 # from build import build
 import build
 
@@ -121,12 +122,11 @@ def get_branch_list(dir):
     获取分支列表
     '''
     # os.system("git pull")
-    os.system("git fetch")
-
     name = "refs/remotes/origin/"
-    l = utils.command(
-        "git --git-dir " + dir + "/.git for-each-ref --format='%(refname)'"
-    )
+    cmd = "git --git-dir " + dir + "/.git for-each-ref --format='%(refname)'"
+    print(cmd)
+    print(dir)
+    l = utils.command(cmd)
     branch = l.split()
     branch = filter(
         lambda x: name in x and "HEAD" not in x,

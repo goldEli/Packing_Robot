@@ -4,7 +4,7 @@ import styled from "styled-components";
 import "antd/dist/antd.css";
 import { FormInstance } from "antd/lib/form";
 
-interface IHomeProps {}
+interface IHomeProps { }
 
 const formInfo = {
   project: { label: "项目名称", key: "project" },
@@ -17,10 +17,10 @@ const formInfo = {
 type Keys = "project" | "branch" | "mention" | "note"
 
 interface Values {
-   project: string
-   branch: string
-   mention: string
-   note: string
+  project: string
+  branch: string
+  mention: string
+  note: string
 }
 
 type Project = { id: string; name: string; url: string }[];
@@ -110,7 +110,15 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
               name={formInfo.mention.key}
               rules={[{ required: true, message: "请输入企业微信@的人: xiangguojun" }]}
             >
-              <Input />
+              <Select mode="tags" placeholder="请选择企业微信@的人">
+                {["xiangguojun", "liyu", "wuheng", "chengyujian", "weikai", "zhangli"].map(item => {
+                  return (
+                    <Select.Option key={item} value={item}>
+                      {item}
+                    </Select.Option>
+                  )
+                })}
+              </Select>
             </Form.Item>
             <Form.Item
               label={formInfo.note.label}
@@ -172,23 +180,29 @@ async function postData(url: string, data: Object = {}) {
 }
 
 function saveValuesToStroage(values: Values) {
-    let key: Keys
-    for (key in values) {
-
-      localStorage.setItem(key, values[key]);
+  let key: Keys
+  for (key in values) {
+    let val = values[key]
+    if (typeof val !== "string") {
+      val = JSON.stringify(val)
     }
+
+    localStorage.setItem(key, val);
+  }
 }
 
 function setDefaultFromStorage(form: FormInstance) {
-  let itemKey: Keys 
+  let itemKey: Keys
   for (itemKey in formInfo) {
     const key = formInfo[itemKey].key as Keys
-    const value = localStorage.getItem(key)
+    let value = localStorage.getItem(key)
     if (!value && key === "mention") {
-
-      form.setFieldsValue({ mention: "xiangguojun" });
+      form.setFieldsValue({ mention: ["xiangguojun"] });
     }
     if (value) {
+      if (key === "mention") {
+        value = JSON.parse(value)
+      }
       form.setFieldsValue({ [key]: value });
     }
   }
