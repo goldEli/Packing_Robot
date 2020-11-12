@@ -31,13 +31,9 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
   const [branchList, setBranchList] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
-  React.useEffect(() => {
-    setDefaultFromStorage(form);
-  }, [form]);
-
   const onFinish = (values: any) => {
     setLoading(true);
-    saveValuesToStroage(values)
+    // saveValuesToStroage(values)
     const key = "loadding";
     message.info({ content: "打包中...", key });
     postData("/start_build", values)
@@ -63,7 +59,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
       setLoading(false);
     });
   };
-  console.log(typeof branchList, branchList);
+
   return (
     <Box>
       <Spin spinning={loading}>
@@ -95,7 +91,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
               name={formInfo.branch.key}
               rules={[{ required: true, message: "请选择分支" }]}
             >
-              <Select placeholder="请选择分支">
+              <Select showSearch placeholder="请选择分支">
                 {branchList.map((item) => {
                   return (
                     <Select.Option key={item} value={item}>
@@ -178,36 +174,35 @@ async function postData(url: string, data: Object = {}) {
     return Promise.reject();
   });
 }
+// const setDefaultFromStorage = (form: FormInstance) => {
+//   let itemKey: Keys
+//   for (itemKey in formInfo) {
+//     const key = formInfo[itemKey].key as Keys
+//     let value = localStorage.getItem(key)
+//     if (!value && key === "mention") {
+//       form.setFieldsValue({ mention: ["xiangguojun"] });
+//     }
+//     if (value) {
+//       if (key === "mention") {
+//         value = JSON.parse(value)
+//       }
+//       form.setFieldsValue({ [key]: value });
+//     }
+//   }
+// }
 
-function saveValuesToStroage(values: Values) {
-  let key: Keys
-  for (key in values) {
-    let val = values[key]
-    if (typeof val !== "string") {
-      val = JSON.stringify(val)
-    }
+// function saveValuesToStroage(values: Values) {
+//   let key: Keys
+//   for (key in values) {
+//     let val = values[key]
+//     if (typeof val !== "string") {
+//       val = JSON.stringify(val)
+//     }
 
-    localStorage.setItem(key, val);
-  }
-}
+//     localStorage.setItem(key, val);
+//   }
+// }
 
-function setDefaultFromStorage(form: FormInstance) {
-  let itemKey: Keys
-  for (itemKey in formInfo) {
-    const key = formInfo[itemKey].key as Keys
-    let value = localStorage.getItem(key)
-    if (!value && key === "mention") {
-      form.setFieldsValue({ mention: ["xiangguojun"] });
-    }
-    if (value) {
-      if (key === "mention") {
-        value = JSON.parse(value)
-      }
-      form.setFieldsValue({ [key]: value });
-    }
-  }
-
-}
 
 function stringToObject(str: any) {
   if (typeof str === "string") {

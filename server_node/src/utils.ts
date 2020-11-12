@@ -42,7 +42,7 @@ export const sendMsgToComChat = function (options:
   下载：${downloadUrl}
   `
 
-  const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), "__config__.json"), 'utf8'));
+  const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), "resources/__config__.json"), 'utf8'));
 
   const command: string = `curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${config.token}' \
   -H 'Content-Type: application/json' \
