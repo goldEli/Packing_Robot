@@ -1,29 +1,41 @@
-<!--
- * @Author: miaoyu
- * @Date: 2020-06-01 16:11:59
- * @LastEditTime: 2020-06-22 15:29:00
- * @LastEditors: miaoyu
- * @Description: 
---> 
 # Packing Robot
 
-🚧 coding
-
-### browser
+## Development
+#### browser
 
 ```shell
 yarn start
 ```
-### node server 
+#### node server 
 
 ```shell
 cd server_node
-yarn start
+yarn start:dev
 ```
 
-### python server (deprecation)
+#### python server (deprecation)
 
 ```shell
-cd server
+cd server_python
 python main.py
+```
+
+## Product
+
+#### browser
+```shell
+cd browser
+yarn build
+```
+
+#### node server
+```shell
+cd sever_node
+yarn build
+```
+
+## Deploy
+```shell
+cd sever_node/dist
+pm2 start main.js
 ```
