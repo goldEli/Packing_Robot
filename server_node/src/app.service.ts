@@ -48,22 +48,21 @@ export class AppService {
 
     gitClone(projectList.find(item => item.id === options.project).url, folderDir)
 
+
+
+    exe(`cd ${folderDir} && git checkout ${options.branch} && yarn && yarn build_online`)
+
     const projectInfoDir = path.join(
       folderDir, "buildInfo.json"
     )
     const projectInfo = JSON.parse(fs.readFileSync(projectInfoDir, 'utf8'));
-
-    const zipName =  projectInfo["date"] + ".zip" 
+    const zipName = projectInfo["date"] + ".zip"
     const zipDir = path.join(folderDir, zipName)
     const projectName = projectInfo["projectName"]
     const needZipFolders = projectInfo["zipFolder"]
 
-    try {
-      exe(`cd ${folderDir} && git checkout ${options.branch} && yarn && yarn build_online && zip -r -X ${zipDir} ${needZipFolders}`)
-      exe(`pwd`)
-    } catch (error) {
-      console.log(error)
-    }
+    exe(`cd ${folderDir} && zip -r -X ${zipDir} ${needZipFolders}`)
+    exe(`pwd`)
 
     await sendFileToServer(zipDir)
 
