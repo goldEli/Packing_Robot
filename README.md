@@ -11,12 +11,19 @@
 
 ### browser
 
+```shell
+yarn start
 ```
+### node server 
+
+```shell
+cd server_node
 yarn start
 ```
 
-### server
+### python server (deprecation)
 
-```
+```shell
+cd server
 python main.py
 ```
