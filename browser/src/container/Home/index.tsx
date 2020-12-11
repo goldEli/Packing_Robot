@@ -16,6 +16,28 @@ const formInfo = {
 
 type Keys = "project" | "branch" | "mention" | "note"
 
+const peopleList = [
+  "xiangguojun",
+  "liyu",
+  "wuheng",
+  "chengyujian",
+  "weikai",
+  "zhangli",
+  "miaoyu",
+  "liuju",
+  "liumingtao",
+  "wangjingqi",
+  "lvjunxi",
+  "caoyuyu",
+  "lanke",
+  "lvzongming",
+  "wangdan",
+  "wanglin",
+  "xialu",
+  "xuhao",
+  "yangyan"
+]
+
 interface Values {
   project: string
   branch: string
@@ -107,7 +129,7 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
               rules={[{ required: true, message: "请输入企业微信@的人: xiangguojun" }]}
             >
               <Select mode="tags" placeholder="请选择企业微信@的人">
-                {["xiangguojun", "liyu", "wuheng", "chengyujian", "weikai", "zhangli"].map(item => {
+                {peopleList.map(item => {
                   return (
                     <Select.Option key={item} value={item}>
                       {item}
